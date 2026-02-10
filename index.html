@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Billing App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Font -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -21,49 +17,40 @@
 
 <main class="container">
 
-  <!-- CUSTOMER DETAILS -->
   <section class="card">
-    <h2>Customer Details</h2>
-
-    <label>
-      Customer Name
-      <input id="name" type="text" placeholder="Enter customer name" />
-    </label>
-
-    <label>
-      Mobile Number
-      <input id="mobile" type="tel" placeholder="10-digit mobile number" />
-    </label>
+    <h2>Shop / Firm Name</h2>
+    <input id="shopName" placeholder="Enter shop name">
   </section>
 
-  <!-- ADD PRODUCT -->
+  <section class="card">
+    <h2>Customer Details</h2>
+    <input id="name" placeholder="Customer name">
+    <input id="mobile" placeholder="Mobile number">
+  </section>
+
   <section class="card">
     <h2>Add Product</h2>
 
-    <label>
-      Product Name
-      <input id="product" type="text" placeholder="Product name" />
-    </label>
+    <input id="product" placeholder="Product name">
 
     <div class="grid-2">
-      <label>
-        Quantity
-        <input id="qty" type="number" min="1" placeholder="1" />
-      </label>
+      <input id="qty" type="number" min="1" placeholder="Qty">
+      <input id="price" type="number" min="0" placeholder="Price">
+    </div>
 
-      <label>
-        Price
-        <input id="price" type="number" min="0" placeholder="₹0" />
-      </label>
+    <div class="grid-2">
+      <input id="itemDiscount" type="number" min="0" placeholder="Discount">
+      <select id="itemDiscountType">
+        <option value="amount">₹</option>
+        <option value="percent">%</option>
+      </select>
     </div>
 
     <button class="primary-btn" onclick="addItem()">＋ Add Item</button>
   </section>
 
-  <!-- BILL ITEMS -->
   <section class="card">
     <h2>Bill Items</h2>
-
     <ul id="itemList" class="item-list"></ul>
 
     <div class="total-row">
@@ -71,29 +58,16 @@
       <strong>₹<span id="total">0</span></strong>
     </div>
 
-    <!-- IMPORTANT: ID ADDED -->
-    <button
-      id="saveBtn"
-      class="primary-btn"
-      onclick="saveBill()"
-      disabled
-    >
+    <button id="saveBtn" class="primary-btn" onclick="saveBill()" disabled>
       💾 Save Bill
     </button>
   </section>
 
-  <!-- SEARCH -->
   <section class="card">
     <h2>Search Bills</h2>
-    <input
-      id="search"
-      type="text"
-      placeholder="Search by name or mobile"
-      onkeyup="searchBills()"
-    />
+    <input id="search" placeholder="Search by name or mobile" onkeyup="searchBills()">
   </section>
 
-  <!-- BILLS -->
   <section class="card">
     <h2>Bills</h2>
     <div id="billList"></div>
@@ -101,7 +75,6 @@
 
 </main>
 
-<!-- JS -->
 <script src="script.js"></script>
 </body>
 </html>
