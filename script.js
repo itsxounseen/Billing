@@ -1,13 +1,13 @@
-/* -----------------------
+/* =========================
    STATE
------------------------- */
+========================= */
 let bills = JSON.parse(localStorage.getItem("bills")) || [];
 let currentItems = [];
 let editIndex = null;
 
-/* -----------------------
-   ELEMENT HELPERS
------------------------- */
+/* =========================
+   HELPERS
+========================= */
 const $ = (id) => document.getElementById(id);
 
 const nameInput = () => $("name");
@@ -19,47 +19,67 @@ const searchInput = () => $("search");
 const itemList = () => $("itemList");
 const totalEl = () => $("total");
 const billList = () => $("billList");
+const saveBtn = () => document.querySelector("button[onclick='saveBill()']");
 
-/* -----------------------
+/* =========================
+   INIT
+========================= */
+disableSave();
+renderBills(bills);
+
+/* =========================
    ADD ITEM
------------------------- */
+========================= */
 function addItem() {
   const product = productInput().value.trim();
   const qty = Number(qtyInput().value);
   const price = Number(priceInput().value);
 
   if (!product || qty <= 0 || price < 0) {
-    alert("Enter valid product, quantity and price");
+    alert("Please enter valid product details");
     return;
   }
 
   currentItems.push({ product, qty, price });
-  renderItems();
+
   clearProductInputs();
+  renderItems();
+  enableSave();
+
+  // UX: move user forward
+  itemList().scrollIntoView({ behavior: "smooth" });
 }
 
-/* -----------------------
+/* =========================
    REMOVE ITEM
------------------------- */
+========================= */
 function removeItem(index) {
   currentItems.splice(index, 1);
   renderItems();
+
+  if (currentItems.length === 0) {
+    disableSave();
+  }
 }
 
-/* -----------------------
+/* =========================
    RENDER ITEMS
------------------------- */
+========================= */
 function renderItems() {
   itemList().innerHTML = "";
-
   let total = 0;
+
+  if (currentItems.length === 0) {
+    itemList().innerHTML =
+      `<li style="color:#777;">No items added yet</li>`;
+  }
 
   currentItems.forEach((item, index) => {
     total += item.qty * item.price;
 
     itemList().innerHTML += `
       <li>
-        <strong>${item.product}</strong>
+        <strong>${item.product}</strong><br>
         <small>${item.qty} × ₹${item.price}</small>
         <button onclick="removeItem(${index})">✖</button>
       </li>
@@ -69,15 +89,15 @@ function renderItems() {
   totalEl().innerText = total;
 }
 
-/* -----------------------
+/* =========================
    SAVE BILL
------------------------- */
+========================= */
 function saveBill() {
   const name = nameInput().value.trim();
   const mobile = mobileInput().value.trim();
 
   if (!name || !mobile || currentItems.length === 0) {
-    alert("Complete customer details and add at least one item");
+    alert("Please complete the bill first");
     return;
   }
 
@@ -93,17 +113,21 @@ function saveBill() {
     bills[editIndex] = bill;
     editIndex = null;
   } else {
-    bills.unshift(bill); // newest first
+    bills.unshift(bill);
   }
 
   localStorage.setItem("bills", JSON.stringify(bills));
+
   resetBill();
   renderBills(bills);
+
+  // UX feedback
+  alert("Bill saved successfully");
 }
 
-/* -----------------------
+/* =========================
    EDIT BILL
------------------------- */
+========================= */
 function editBill(index) {
   const bill = bills[index];
 
@@ -113,19 +137,27 @@ function editBill(index) {
   editIndex = index;
 
   renderItems();
+  enableSave();
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-/* -----------------------
-   RENDER BILLS (CARDS)
------------------------- */
+/* =========================
+   RENDER BILLS
+========================= */
 function renderBills(list) {
   billList().innerHTML = "";
 
+  if (list.length === 0) {
+    billList().innerHTML =
+      `<p style="color:#777;">No bills yet</p>`;
+    return;
+  }
+
   list.forEach((bill, index) => {
-    const message = buildWhatsAppMessage(bill);
+    const waMessage = buildWhatsAppMessage(bill);
     const waLink =
-      `https://wa.me/91${bill.mobile}?text=${encodeURIComponent(message)}`;
+      `https://wa.me/91${bill.mobile}?text=${encodeURIComponent(waMessage)}`;
 
     billList().innerHTML += `
       <div class="bill-card">
@@ -148,9 +180,9 @@ function renderBills(list) {
   });
 }
 
-/* -----------------------
+/* =========================
    WHATSAPP MESSAGE
------------------------- */
+========================= */
 function buildWhatsAppMessage(bill) {
   const itemsText = bill.items
     .map(i => `${i.product} (${i.qty} × ₹${i.price})`)
@@ -163,16 +195,16 @@ Mobile: ${bill.mobile}
 
 ${itemsText}
 
-------------------
+--------------------
 Total: ₹${bill.total}
 Date: ${bill.date}
 
 Thank you for your purchase 🙏`;
 }
 
-/* -----------------------
+/* =========================
    SEARCH
------------------------- */
+========================= */
 function searchBills() {
   const text = searchInput().value.toLowerCase();
 
@@ -184,26 +216,32 @@ function searchBills() {
   renderBills(filtered);
 }
 
-/* -----------------------
+/* =========================
    RESET
------------------------- */
+========================= */
 function resetBill() {
   nameInput().value = "";
   mobileInput().value = "";
   currentItems = [];
+  editIndex = null;
+
   renderItems();
+  disableSave();
 }
 
-/* -----------------------
-   CLEAR PRODUCT INPUTS
------------------------- */
+/* =========================
+   INPUT HELPERS
+========================= */
 function clearProductInputs() {
   productInput().value = "";
   qtyInput().value = "";
   priceInput().value = "";
 }
 
-/* -----------------------
-   INIT
------------------------- */
-renderBills(bills);
+function disableSave() {
+  if (saveBtn()) saveBtn().disabled = true;
+}
+
+function enableSave() {
+  if (saveBtn()) saveBtn().disabled = false;
+   }
