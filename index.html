@@ -5,11 +5,13 @@
   <title>Billing App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Google Font -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
 <header class="app-header">
@@ -19,7 +21,7 @@
 
 <main class="container">
 
-  <!-- CUSTOMER -->
+  <!-- CUSTOMER DETAILS -->
   <section class="card">
     <h2>Customer Details</h2>
 
@@ -69,15 +71,26 @@
       <strong>₹<span id="total">0</span></strong>
     </div>
 
-    <button id="saveBtn" class="primary-btn" onclick="saveBill()" disabled>
-  💾 Save Bill
+    <!-- IMPORTANT: ID ADDED -->
+    <button
+      id="saveBtn"
+      class="primary-btn"
+      onclick="saveBill()"
+      disabled
+    >
+      💾 Save Bill
     </button>
   </section>
 
   <!-- SEARCH -->
   <section class="card">
     <h2>Search Bills</h2>
-    <input id="search" type="text" placeholder="Search by name or mobile" onkeyup="searchBills()" />
+    <input
+      id="search"
+      type="text"
+      placeholder="Search by name or mobile"
+      onkeyup="searchBills()"
+    />
   </section>
 
   <!-- BILLS -->
@@ -88,5 +101,7 @@
 
 </main>
 
+<!-- JS -->
+<script src="script.js"></script>
 </body>
 </html>
