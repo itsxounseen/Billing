@@ -1,102 +1,77 @@
-/* =====================
-   STATE
-===================== */
+const $ = id => document.getElementById(id);
+
 let bills = JSON.parse(localStorage.getItem("bills")) || [];
-let currentItems = [];
+let items = [];
 let editIndex = null;
 
-/* =====================
-   HELPERS
-===================== */
-const $ = (id) => document.getElementById(id);
+$("shopName").value = localStorage.getItem("shopName") || "";
 
-/* =====================
-   INIT
-===================== */
-renderBills(bills);
-disableSave();
-
-/* =====================
-   ADD ITEM
-===================== */
 function addItem() {
   const product = $("product").value.trim();
   const qty = Number($("qty").value);
   const price = Number($("price").value);
+  const dVal = Number($("itemDiscount").value) || 0;
+  const dType = $("itemDiscountType").value;
 
-  if (!product || qty <= 0 || price < 0) {
-    alert("Enter valid product details");
-    return;
-  }
+  if (!product || qty <= 0 || price < 0) return alert("Invalid item");
 
-  currentItems.push({ product, qty, price });
-
-  $("product").value = "";
-  $("qty").value = "";
-  $("price").value = "";
-
+  items.push({ product, qty, price, dVal, dType });
+  clearItemInputs();
   renderItems();
-  enableSave();
-
-  $("itemList").scrollIntoView({ behavior: "smooth" });
+  $("saveBtn").disabled = false;
 }
 
-/* =====================
-   REMOVE ITEM
-===================== */
-function removeItem(index) {
-  currentItems.splice(index, 1);
-  renderItems();
-
-  if (currentItems.length === 0) {
-    disableSave();
-  }
+function calculateItemTotal(i) {
+  let sub = i.qty * i.price;
+  let disc = i.dType === "percent" ? sub * i.dVal / 100 : i.dVal;
+  return Math.max(sub - disc, 0);
 }
 
-/* =====================
-   RENDER ITEMS
-===================== */
 function renderItems() {
-  const list = $("itemList");
-  list.innerHTML = "";
+  $("itemList").innerHTML = "";
   let total = 0;
 
-  if (currentItems.length === 0) {
-    list.innerHTML = "<li style='color:#777'>No items added yet</li>";
+  if (items.length === 0) {
+    $("itemList").innerHTML = "<li>No items added</li>";
   }
 
-  currentItems.forEach((item, index) => {
-    total += item.qty * item.price;
+  items.forEach((i, idx) => {
+    let itemTotal = calculateItemTotal(i);
+    total += itemTotal;
 
-    list.innerHTML += `
+    $("itemList").innerHTML += `
       <li>
-        <strong>${item.product}</strong><br>
-        <small>${item.qty} × ₹${item.price}</small>
-        <button onclick="removeItem(${index})">✖</button>
+        <strong>${i.product}</strong><br>
+        ${i.qty} × ₹${i.price} |
+        Disc: ${i.dType === "percent" ? i.dVal + "%" : "₹" + i.dVal}<br>
+        <b>₹${itemTotal}</b>
+        <button onclick="removeItem(${idx})">✖</button>
       </li>
     `;
   });
 
-  $("total").innerText = total;
+  $("total").innerText = Math.round(total);
 }
 
-/* =====================
-   SAVE BILL
-===================== */
+function removeItem(i) {
+  items.splice(i, 1);
+  renderItems();
+  if (items.length === 0) $("saveBtn").disabled = true;
+}
+
 function saveBill() {
   const name = $("name").value.trim();
   const mobile = $("mobile").value.trim();
+  if (!name || !mobile || items.length === 0) return alert("Complete bill");
 
-  if (!name || !mobile || currentItems.length === 0) {
-    alert("Complete customer details and add items");
-    return;
-  }
+  localStorage.setItem("shopName", $("shopName").value);
 
   const bill = {
+    shop: $("shopName").value,
     name,
     mobile,
-    items: [...currentItems],
-    total: Number($("total").innerText),
+    items,
+    total: $("total").innerText,
     date: new Date().toLocaleString()
   };
 
@@ -108,122 +83,81 @@ function saveBill() {
   }
 
   localStorage.setItem("bills", JSON.stringify(bills));
-
   resetBill();
-  renderBills(bills);
-
-  alert("Bill saved successfully");
+  renderBills();
 }
 
-/* =====================
-   EDIT BILL
-===================== */
-function editBill(index) {
-  const bill = bills[index];
+function renderBills(list = bills) {
+  $("billList").innerHTML = "";
 
-  $("name").value = bill.name;
-  $("mobile").value = bill.mobile;
-  currentItems = [...bill.items];
-  editIndex = index;
+  list.forEach((b, i) => {
+    const waText = `🧾 ${b.shop}
+Customer: ${b.name}
+${b.items.map(it =>
+`${it.product} ₹${calculateItemTotal(it)}`
+).join("\n")}
+Total: ₹${b.total}`;
 
-  renderItems();
-  enableSave();
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-/* =====================
-   RENDER BILLS
-===================== */
-function renderBills(list) {
-  const container = $("billList");
-  container.innerHTML = "";
-
-  if (list.length === 0) {
-    container.innerHTML = "<p style='color:#777'>No bills yet</p>";
-    return;
-  }
-
-  list.forEach((bill, index) => {
-    const msg = buildWhatsAppMessage(bill);
-    const wa =
-      `https://wa.me/91${bill.mobile}?text=${encodeURIComponent(msg)}`;
-
-    container.innerHTML += `
+    $("billList").innerHTML += `
       <div class="bill-card">
         <div class="bill-header">
-          <span>${bill.name}</span>
-          <span>₹${bill.total}</span>
+          <span>${b.name}</span>
+          <span>₹${b.total}</span>
         </div>
-        <div class="bill-meta">
-          📞 ${bill.mobile}<br>
-          🕒 ${bill.date}
-        </div>
+        <div class="bill-meta">${b.date}</div>
         <div class="bill-actions">
-          <button class="edit-btn" onclick="editBill(${index})">✏️ Edit</button>
-          <a class="share-btn" href="${wa}" target="_blank">📤 Share</a>
+          <button class="edit-btn" onclick="editBill(${i})">✏️</button>
+          <a class="share-btn" target="_blank"
+            href="https://wa.me/91${b.mobile}?text=${encodeURIComponent(waText)}">📤</a>
+          <button class="delete-btn" onclick="deleteBill(${i})">🗑</button>
         </div>
       </div>
     `;
   });
 }
 
-/* =====================
-   WHATSAPP MESSAGE
-===================== */
-function buildWhatsAppMessage(bill) {
-  const items = bill.items
-    .map(i => `${i.product} (${i.qty} × ₹${i.price})`)
-    .join("\n");
-
-  return `🧾 *Bill Receipt*
-
-Customer: ${bill.name}
-Mobile: ${bill.mobile}
-
-${items}
-
-----------------
-Total: ₹${bill.total}
-Date: ${bill.date}
-
-Thank you 🙏`;
+function editBill(i) {
+  const b = bills[i];
+  $("shopName").value = b.shop;
+  $("name").value = b.name;
+  $("mobile").value = b.mobile;
+  items = [...b.items];
+  editIndex = i;
+  renderItems();
+  $("saveBtn").disabled = false;
 }
 
-/* =====================
-   SEARCH
-===================== */
-function searchBills() {
-  const text = $("search").value.toLowerCase();
+function deleteBill(i) {
+  if (!confirm("Delete bill?")) return;
+  bills.splice(i, 1);
+  localStorage.setItem("bills", JSON.stringify(bills));
+  renderBills();
+}
 
+function searchBills() {
+  const q = $("search").value.toLowerCase();
   renderBills(
     bills.filter(b =>
-      b.name.toLowerCase().includes(text) ||
-      b.mobile.includes(text)
+      b.name.toLowerCase().includes(q) ||
+      b.mobile.includes(q)
     )
   );
 }
 
-/* =====================
-   RESET
-===================== */
+function clearItemInputs() {
+  $("product").value = "";
+  $("qty").value = "";
+  $("price").value = "";
+  $("itemDiscount").value = "";
+  $("itemDiscountType").value = "amount";
+}
+
 function resetBill() {
   $("name").value = "";
   $("mobile").value = "";
-  currentItems = [];
-  editIndex = null;
-
+  items = [];
   renderItems();
-  disableSave();
-}
-
-/* =====================
-   SAVE BUTTON CONTROL
-===================== */
-function disableSave() {
   $("saveBtn").disabled = true;
 }
 
-function enableSave() {
-  $("saveBtn").disabled = false;
-}
+renderBills();
