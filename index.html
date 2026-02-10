@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Billing App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🧾 Billing App</h1>
+
+<div class="card">
+  <h3>Customer Details</h3>
+  <input id="name" placeholder="Customer Name">
+  <input id="mobile" placeholder="Mobile Number">
+</div>
+
+<div class="card">
+  <h3>Add Product</h3>
+  <input id="product" placeholder="Product Name">
+  <input id="qty" type="number" placeholder="Quantity">
+  <input id="price" type="number" placeholder="Price">
+  <button onclick="addItem()">➕ Add Item</button>
+</div>
+
+<div class="card">
+  <h3>🛒 Bill Items</h3>
+  <ul id="itemList"></ul>
+  <h3>Total: ₹<span id="total">0</span></h3>
+  <button onclick="saveBill()">💾 Save Bill</button>
+</div>
+
+<div class="card">
+  <h3>🔍 Search Bills</h3>
+  <input id="search" placeholder="Search by name or mobile" onkeyup="searchBills()">
+</div>
+
+<div class="card">
+  <h3>📊 Bills</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Mobile</th>
+        <th>Total</th>
+        <th>Date</th>
+        <th>Edit</th>
+        <th>Share</th>
+      </tr>
+    </thead>
+    <tbody id="billTable"></tbody>
+  </table>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
