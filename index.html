@@ -1,57 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Billing App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h1>🧾 Billing App</h1>
+<header class="app-header">
+  <div class="logo">🧾</div>
+  <h1>Billing App</h1>
+</header>
 
-<div class="card">
-  <h3>Customer Details</h3>
-  <input id="name" placeholder="Customer Name">
-  <input id="mobile" placeholder="Mobile Number">
-</div>
+<main class="container">
 
-<div class="card">
-  <h3>Add Product</h3>
-  <input id="product" placeholder="Product Name">
-  <input id="qty" type="number" placeholder="Quantity">
-  <input id="price" type="number" placeholder="Price">
-  <button onclick="addItem()">➕ Add Item</button>
-</div>
+  <!-- CUSTOMER -->
+  <section class="card">
+    <h2>Customer Details</h2>
 
-<div class="card">
-  <h3>🛒 Bill Items</h3>
-  <ul id="itemList"></ul>
-  <h3>Total: ₹<span id="total">0</span></h3>
-  <button onclick="saveBill()">💾 Save Bill</button>
-</div>
+    <label>
+      Customer Name
+      <input id="name" type="text" placeholder="Enter customer name" />
+    </label>
 
-<div class="card">
-  <h3>🔍 Search Bills</h3>
-  <input id="search" placeholder="Search by name or mobile" onkeyup="searchBills()">
-</div>
+    <label>
+      Mobile Number
+      <input id="mobile" type="tel" placeholder="10-digit mobile number" />
+    </label>
+  </section>
 
-<div class="card">
-  <h3>📊 Bills</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Mobile</th>
-        <th>Total</th>
-        <th>Date</th>
-        <th>Edit</th>
-        <th>Share</th>
-      </tr>
-    </thead>
-    <tbody id="billTable"></tbody>
-  </table>
-</div>
+  <!-- ADD PRODUCT -->
+  <section class="card">
+    <h2>Add Product</h2>
 
-<script src="script.js"></script>
+    <label>
+      Product Name
+      <input id="product" type="text" placeholder="Product name" />
+    </label>
+
+    <div class="grid-2">
+      <label>
+        Quantity
+        <input id="qty" type="number" min="1" placeholder="1" />
+      </label>
+
+      <label>
+        Price
+        <input id="price" type="number" min="0" placeholder="₹0" />
+      </label>
+    </div>
+
+    <button class="primary-btn" onclick="addItem()">＋ Add Item</button>
+  </section>
+
+  <!-- BILL ITEMS -->
+  <section class="card">
+    <h2>Bill Items</h2>
+
+    <ul id="itemList" class="item-list"></ul>
+
+    <div class="total-row">
+      <span>Total</span>
+      <strong>₹<span id="total">0</span></strong>
+    </div>
+
+    <button class="primary-btn" onclick="saveBill()">💾 Save Bill</button>
+  </section>
+
+  <!-- SEARCH -->
+  <section class="card">
+    <h2>Search Bills</h2>
+    <input id="search" type="text" placeholder="Search by name or mobile" onkeyup="searchBills()" />
+  </section>
+
+  <!-- BILLS -->
+  <section class="card">
+    <h2>Bills</h2>
+    <div id="billList"></div>
+  </section>
+
+</main>
+
 </body>
-</html>
+                 </html>
