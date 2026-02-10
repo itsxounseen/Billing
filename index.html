@@ -24,14 +24,14 @@
 
   <section class="card">
     <h2>Customer Details</h2>
-    <input id="name" placeholder="Customer name">
-    <input id="mobile" placeholder="Mobile number">
+    <input id="customerName" placeholder="Customer name">
+    <input id="customerMobile" placeholder="Mobile number">
   </section>
 
   <section class="card">
     <h2>Add Product</h2>
 
-    <input id="product" placeholder="Product name">
+    <input id="productName" placeholder="Product name">
 
     <div class="grid-2">
       <input id="qty" type="number" min="1" placeholder="Qty">
@@ -54,20 +54,25 @@
 
     <ul id="itemList" class="item-list"></ul>
 
+    <label>
+      Amount Paid
+      <input id="amountPaid" type="number" min="0" placeholder="0" oninput="updatePaymentPreview()">
+    </label>
+
     <div class="grid-2">
-      <label>
-        Payment Status
-        <select id="paymentStatus">
-          <option value="Paid">Paid</option>
-          <option value="Due">Due</option>
-          <option value="Unpaid">Unpaid</option>
-        </select>
-      </label>
+      <div>
+        <small>Balance</small><br>
+        ₹<span id="balancePreview">0</span>
+      </div>
+      <div>
+        <small>Status</small><br>
+        <strong id="statusPreview">Unpaid</strong>
+      </div>
     </div>
 
     <div class="total-row">
       <span>Total</span>
-      <strong>₹<span id="total">0</span></strong>
+      <strong>₹<span id="totalAmount">0</span></strong>
     </div>
 
     <button id="saveBtn" class="primary-btn" onclick="saveBill()" disabled>
@@ -89,4 +94,4 @@
 
 <script src="script.js"></script>
 </body>
-  </html>
+</html>
