@@ -1,61 +1,91 @@
+/* -----------------------
+   STATE
+------------------------ */
 let bills = JSON.parse(localStorage.getItem("bills")) || [];
-let items = [];
+let currentItems = [];
 let editIndex = null;
 
-const itemList = document.getElementById("itemList");
-const totalSpan = document.getElementById("total");
-const billTable = document.getElementById("billTable");
+/* -----------------------
+   ELEMENT HELPERS
+------------------------ */
+const $ = (id) => document.getElementById(id);
 
-// ADD ITEM
+const nameInput = () => $("name");
+const mobileInput = () => $("mobile");
+const productInput = () => $("product");
+const qtyInput = () => $("qty");
+const priceInput = () => $("price");
+const searchInput = () => $("search");
+const itemList = () => $("itemList");
+const totalEl = () => $("total");
+const billList = () => $("billList");
+
+/* -----------------------
+   ADD ITEM
+------------------------ */
 function addItem() {
-  let product = productInput().value;
-  let qty = qtyInput().value;
-  let price = priceInput().value;
+  const product = productInput().value.trim();
+  const qty = Number(qtyInput().value);
+  const price = Number(priceInput().value);
 
-  if (!product || !qty || !price) return alert("Fill product fields");
+  if (!product || qty <= 0 || price < 0) {
+    alert("Enter valid product, quantity and price");
+    return;
+  }
 
-  items.push({ product, qty, price });
+  currentItems.push({ product, qty, price });
   renderItems();
-  clearItemInputs();
+  clearProductInputs();
 }
 
-// RENDER ITEMS
+/* -----------------------
+   REMOVE ITEM
+------------------------ */
+function removeItem(index) {
+  currentItems.splice(index, 1);
+  renderItems();
+}
+
+/* -----------------------
+   RENDER ITEMS
+------------------------ */
 function renderItems() {
-  itemList.innerHTML = "";
+  itemList().innerHTML = "";
+
   let total = 0;
 
-  items.forEach((i, index) => {
-    total += i.qty * i.price;
-    itemList.innerHTML += `
+  currentItems.forEach((item, index) => {
+    total += item.qty * item.price;
+
+    itemList().innerHTML += `
       <li>
-        ${i.product} ( ${i.qty} × ₹${i.price} )
-        <button onclick="removeItem(${index})">❌</button>
+        <strong>${item.product}</strong>
+        <small>${item.qty} × ₹${item.price}</small>
+        <button onclick="removeItem(${index})">✖</button>
       </li>
     `;
   });
 
-  totalSpan.innerText = total;
+  totalEl().innerText = total;
 }
 
-// REMOVE ITEM
-function removeItem(i) {
-  items.splice(i, 1);
-  renderItems();
-}
-
-// SAVE BILL
+/* -----------------------
+   SAVE BILL
+------------------------ */
 function saveBill() {
-  let name = nameInput().value;
-  let mobile = mobileInput().value;
+  const name = nameInput().value.trim();
+  const mobile = mobileInput().value.trim();
 
-  if (!name || !mobile || items.length === 0)
-    return alert("Complete bill first");
+  if (!name || !mobile || currentItems.length === 0) {
+    alert("Complete customer details and add at least one item");
+    return;
+  }
 
-  let bill = {
+  const bill = {
     name,
     mobile,
-    items,
-    total: totalSpan.innerText,
+    items: [...currentItems],
+    total: Number(totalEl().innerText),
     date: new Date().toLocaleString()
   };
 
@@ -63,7 +93,7 @@ function saveBill() {
     bills[editIndex] = bill;
     editIndex = null;
   } else {
-    bills.push(bill);
+    bills.unshift(bill); // newest first
   }
 
   localStorage.setItem("bills", JSON.stringify(bills));
@@ -71,74 +101,109 @@ function saveBill() {
   renderBills(bills);
 }
 
-// SHOW BILLS
+/* -----------------------
+   EDIT BILL
+------------------------ */
+function editBill(index) {
+  const bill = bills[index];
+
+  nameInput().value = bill.name;
+  mobileInput().value = bill.mobile;
+  currentItems = [...bill.items];
+  editIndex = index;
+
+  renderItems();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* -----------------------
+   RENDER BILLS (CARDS)
+------------------------ */
 function renderBills(list) {
-  billTable.innerHTML = "";
+  billList().innerHTML = "";
 
-  list.forEach((b, i) => {
-    let message =
-`🧾 Bill Receipt
-Customer: ${b.name}
-Mobile: ${b.mobile}
+  list.forEach((bill, index) => {
+    const message = buildWhatsAppMessage(bill);
+    const waLink =
+      `https://wa.me/91${bill.mobile}?text=${encodeURIComponent(message)}`;
 
-${b.items.map(it =>
-`${it.product} - ${it.qty} × ₹${it.price}`
-).join("\n")}
+    billList().innerHTML += `
+      <div class="bill-card">
+        <div class="bill-header">
+          <span>${bill.name}</span>
+          <span>₹${bill.total}</span>
+        </div>
 
-Total: ₹${b.total}
-Date: ${b.date}`;
+        <div class="bill-meta">
+          📞 ${bill.mobile}<br>
+          🕒 ${bill.date}
+        </div>
 
-    let wa = `https://wa.me/91${b.mobile}?text=${encodeURIComponent(message)}`;
-
-    billTable.innerHTML += `
-      <tr>
-        <td>${b.name}</td>
-        <td>${b.mobile}</td>
-        <td>₹${b.total}</td>
-        <td>${b.date}</td>
-        <td><button onclick="editBill(${i})">✏️</button></td>
-        <td><a href="${wa}" target="_blank">📤</a></td>
-      </tr>
+        <div class="bill-actions">
+          <button class="edit-btn" onclick="editBill(${index})">✏️ Edit</button>
+          <a class="share-btn" href="${waLink}" target="_blank">📤 Share</a>
+        </div>
+      </div>
     `;
   });
 }
 
-// EDIT BILL
-function editBill(i) {
-  let b = bills[i];
-  editIndex = i;
+/* -----------------------
+   WHATSAPP MESSAGE
+------------------------ */
+function buildWhatsAppMessage(bill) {
+  const itemsText = bill.items
+    .map(i => `${i.product} (${i.qty} × ₹${i.price})`)
+    .join("\n");
 
-  nameInput().value = b.name;
-  mobileInput().value = b.mobile;
-  items = [...b.items];
+  return `🧾 *Bill Receipt*
 
-  renderItems();
+Customer: ${bill.name}
+Mobile: ${bill.mobile}
+
+${itemsText}
+
+------------------
+Total: ₹${bill.total}
+Date: ${bill.date}
+
+Thank you for your purchase 🙏`;
 }
 
-// SEARCH
+/* -----------------------
+   SEARCH
+------------------------ */
 function searchBills() {
-  let text = searchInput().value.toLowerCase();
-  renderBills(
-    bills.filter(b =>
-      b.name.toLowerCase().includes(text) ||
-      b.mobile.includes(text)
-    )
+  const text = searchInput().value.toLowerCase();
+
+  const filtered = bills.filter(b =>
+    b.name.toLowerCase().includes(text) ||
+    b.mobile.includes(text)
   );
+
+  renderBills(filtered);
 }
 
-// RESET
+/* -----------------------
+   RESET
+------------------------ */
 function resetBill() {
-  nameInput().value = mobileInput().value = "";
-  items = [];
+  nameInput().value = "";
+  mobileInput().value = "";
+  currentItems = [];
   renderItems();
 }
 
-// INPUT HELPERS
-const nameInput = () => document.getElementById("name");
-const mobileInput = () => document.getElementById("mobile");
-const productInput = () => document.getElementById("product");
-const qtyInput = () => document.getElementById("qty");
-const priceInput = () => document.getElementById("price");
-const searchInput = () => document.getElementById("search");
+/* -----------------------
+   CLEAR PRODUCT INPUTS
+------------------------ */
+function clearProductInputs() {
+  productInput().value = "";
+  qtyInput().value = "";
+  priceInput().value = "";
+}
 
+/* -----------------------
+   INIT
+------------------------ */
 renderBills(bills);
