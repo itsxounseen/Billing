@@ -1,6 +1,4 @@
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -76,8 +74,8 @@ input, select {
 
 .item-list button {
   float: right;
-  border: none;
   background: none;
+  border: none;
   color: red;
 }
 
@@ -136,4 +134,15 @@ input, select {
   border: 1px solid red;
   color: red;
   background: #fff;
-   }
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.Paid { background:#dcfce7; color:#166534; }
+.status.Due { background:#fff7ed; color:#9a3412; }
+.status.Unpaid { background:#fee2e2; color:#991b1b; }
