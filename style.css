@@ -1,223 +1,139 @@
-/* --------------------
-   RESET & BASE
---------------------- */
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
   background: #f5f6f8;
-  color: #111;
-  line-height: 1.4;
 }
 
-/* --------------------
-   HEADER
---------------------- */
 .app-header {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 16px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
 }
 
-.app-header .logo {
-  font-size: 24px;
-}
-
-.app-header h1 {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-/* --------------------
-   LAYOUT
---------------------- */
 .container {
   max-width: 520px;
-  margin: 0 auto;
+  margin: auto;
   padding: 16px;
 }
 
-/* --------------------
-   CARD
---------------------- */
 .card {
-  background: #ffffff;
+  background: #fff;
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 
-.card h2 {
+h2 {
+  margin-bottom: 12px;
   font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
 }
 
-/* --------------------
-   FORM ELEMENTS
---------------------- */
-label {
-  display: block;
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 12px;
-}
-
-input {
+input, select {
   width: 100%;
-  margin-top: 6px;
   padding: 12px;
-  font-size: 14px;
+  margin-bottom: 10px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  outline: none;
+  border: 1px solid #ccc;
 }
 
-input:focus {
-  border-color: #000;
-}
-
-/* --------------------
-   GRID
---------------------- */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* --------------------
-   BUTTONS
---------------------- */
 .primary-btn {
   width: 100%;
-  margin-top: 14px;
   padding: 12px;
-  font-size: 15px;
-  font-weight: 600;
   border-radius: 12px;
-  border: none;
   background: #000;
   color: #fff;
-  cursor: pointer;
+  border: none;
+  font-size: 15px;
 }
 
-.primary-btn:active {
-  transform: scale(0.98);
+.primary-btn:disabled {
+  opacity: 0.5;
 }
 
-/* --------------------
-   BILL ITEMS
---------------------- */
 .item-list {
   list-style: none;
-  margin-bottom: 14px;
+  padding: 0;
 }
 
 .item-list li {
   padding: 10px 0;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 14px;
-}
-
-.item-list li:last-child {
-  border-bottom: none;
-}
-
-.item-list strong {
-  display: block;
-  font-weight: 600;
-}
-
-.item-list small {
-  color: #666;
+  border-bottom: 1px solid #eee;
 }
 
 .item-list button {
-  background: none;
-  border: none;
-  color: #ef4444;
-  font-size: 14px;
   float: right;
-  cursor: pointer;
+  border: none;
+  background: none;
+  color: red;
 }
 
-/* --------------------
-   TOTAL
---------------------- */
 .total-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  font-size: 15px;
   font-weight: 600;
+  margin: 12px 0;
 }
 
-/* --------------------
-   BILL CARDS (SAVED BILLS)
---------------------- */
 .bill-card {
-  background: #fafafa;
+  border: 1px solid #ddd;
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   margin-bottom: 12px;
-  border: 1px solid #e5e7eb;
 }
 
 .bill-header {
   display: flex;
   justify-content: space-between;
-  font-size: 15px;
   font-weight: 600;
 }
 
 .bill-meta {
   font-size: 13px;
   color: #555;
-  margin: 6px 0 10px;
+  margin: 8px 0;
 }
 
 .bill-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+}
+
+.bill-actions button,
+.bill-actions a {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
 }
 
 .edit-btn {
-  flex: 1;
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 10px;
   border: 1px solid #000;
   background: #fff;
-  cursor: pointer;
 }
 
 .share-btn {
-  flex: 1;
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 10px;
   background: #25D366;
   color: #fff;
-  text-align: center;
   text-decoration: none;
 }
 
-/* --------------------
-   RESPONSIVE FIXES
---------------------- */
-@media (max-width: 360px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
+.delete-btn {
+  border: 1px solid red;
+  color: red;
+  background: #fff;
+   }
