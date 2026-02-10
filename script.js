@@ -6,6 +6,12 @@ let editIndex = null;
 
 $("shopName").value = localStorage.getItem("shopName") || "";
 
+function calculateItemTotal(i) {
+  let sub = i.qty * i.price;
+  let disc = i.dType === "percent" ? (sub * i.dVal / 100) : i.dVal;
+  return Math.max(sub - disc, 0);
+}
+
 function addItem() {
   const product = $("product").value.trim();
   const qty = Number($("qty").value);
@@ -21,30 +27,26 @@ function addItem() {
   $("saveBtn").disabled = false;
 }
 
-function calculateItemTotal(i) {
-  let sub = i.qty * i.price;
-  let disc = i.dType === "percent" ? sub * i.dVal / 100 : i.dVal;
-  return Math.max(sub - disc, 0);
-}
-
 function renderItems() {
   $("itemList").innerHTML = "";
   let total = 0;
 
   if (items.length === 0) {
     $("itemList").innerHTML = "<li>No items added</li>";
+    $("total").innerText = 0;
+    return;
   }
 
   items.forEach((i, idx) => {
-    let itemTotal = calculateItemTotal(i);
+    const itemTotal = calculateItemTotal(i);
     total += itemTotal;
 
     $("itemList").innerHTML += `
       <li>
         <strong>${i.product}</strong><br>
-        ${i.qty} × ₹${i.price} |
-        Disc: ${i.dType === "percent" ? i.dVal + "%" : "₹" + i.dVal}<br>
-        <b>₹${itemTotal}</b>
+        ${i.qty} × ₹${i.price},
+        Disc: ${i.dType === "percent" ? i.dVal + "%" : "₹" + i.dVal}
+        <b> → ₹${itemTotal}</b>
         <button onclick="removeItem(${idx})">✖</button>
       </li>
     `;
@@ -62,7 +64,9 @@ function removeItem(i) {
 function saveBill() {
   const name = $("name").value.trim();
   const mobile = $("mobile").value.trim();
-  if (!name || !mobile || items.length === 0) return alert("Complete bill");
+
+  if (!name || !mobile || items.length === 0)
+    return alert("Complete the bill");
 
   localStorage.setItem("shopName", $("shopName").value);
 
@@ -72,6 +76,7 @@ function saveBill() {
     mobile,
     items,
     total: $("total").innerText,
+    paymentStatus: $("paymentStatus").value,
     date: new Date().toLocaleString()
   };
 
@@ -87,28 +92,55 @@ function saveBill() {
   renderBills();
 }
 
+function buildPremiumWhatsAppBill(b) {
+  let lines = [];
+  lines.push("*🧾 BILL RECEIPT*");
+  lines.push("");
+  lines.push(`🏪 *${b.shop}*`);
+  lines.push("────────────────");
+  lines.push(`👤 Customer : ${b.name}`);
+  lines.push(`📞 Mobile   : ${b.mobile}`);
+  lines.push("");
+  lines.push("*Items*");
+  lines.push("────────────────");
+
+  b.items.forEach(i => {
+    lines.push(`• ${i.product}`);
+    lines.push(`  ${i.qty} × ₹${i.price}`);
+    lines.push(`  Item Total : ₹${calculateItemTotal(i)}`);
+    lines.push("");
+  });
+
+  lines.push("────────────────");
+  lines.push(`*TOTAL : ₹${b.total}*`);
+  lines.push(`Status : *${b.paymentStatus}*`);
+  lines.push("");
+  lines.push(`🕒 ${b.date}`);
+  lines.push("");
+  lines.push("_Thank you for your business 🙏_");
+
+  return lines.join("\n");
+}
+
 function renderBills(list = bills) {
   $("billList").innerHTML = "";
 
   list.forEach((b, i) => {
-    const waText = `🧾 ${b.shop}
-Customer: ${b.name}
-${b.items.map(it =>
-`${it.product} ₹${calculateItemTotal(it)}`
-).join("\n")}
-Total: ₹${b.total}`;
+    const waText = buildPremiumWhatsAppBill(b);
+    const waLink = `https://wa.me/91${b.mobile}?text=${encodeURIComponent(waText)}`;
 
     $("billList").innerHTML += `
       <div class="bill-card">
         <div class="bill-header">
           <span>${b.name}</span>
-          <span>₹${b.total}</span>
+          <span class="status ${b.paymentStatus}">
+            ${b.paymentStatus}
+          </span>
         </div>
-        <div class="bill-meta">${b.date}</div>
+        <div class="bill-meta">₹${b.total} · ${b.date}</div>
         <div class="bill-actions">
           <button class="edit-btn" onclick="editBill(${i})">✏️</button>
-          <a class="share-btn" target="_blank"
-            href="https://wa.me/91${b.mobile}?text=${encodeURIComponent(waText)}">📤</a>
+          <a class="share-btn" target="_blank" href="${waLink}">📤</a>
           <button class="delete-btn" onclick="deleteBill(${i})">🗑</button>
         </div>
       </div>
@@ -121,6 +153,7 @@ function editBill(i) {
   $("shopName").value = b.shop;
   $("name").value = b.name;
   $("mobile").value = b.mobile;
+  $("paymentStatus").value = b.paymentStatus;
   items = [...b.items];
   editIndex = i;
   renderItems();
@@ -128,7 +161,7 @@ function editBill(i) {
 }
 
 function deleteBill(i) {
-  if (!confirm("Delete bill?")) return;
+  if (!confirm("Delete this bill?")) return;
   bills.splice(i, 1);
   localStorage.setItem("bills", JSON.stringify(bills));
   renderBills();
@@ -155,6 +188,7 @@ function clearItemInputs() {
 function resetBill() {
   $("name").value = "";
   $("mobile").value = "";
+  $("paymentStatus").value = "Paid";
   items = [];
   renderItems();
   $("saveBtn").disabled = true;
