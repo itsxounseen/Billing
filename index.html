@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Billing App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -11,7 +11,7 @@
 <body>
 
 <header class="app-header">
-  <div class="logo">🧾</div>
+  <span class="logo">🧾</span>
   <h1>Billing App</h1>
 </header>
 
@@ -51,7 +51,19 @@
 
   <section class="card">
     <h2>Bill Items</h2>
+
     <ul id="itemList" class="item-list"></ul>
+
+    <div class="grid-2">
+      <label>
+        Payment Status
+        <select id="paymentStatus">
+          <option value="Paid">Paid</option>
+          <option value="Due">Due</option>
+          <option value="Unpaid">Unpaid</option>
+        </select>
+      </label>
+    </div>
 
     <div class="total-row">
       <span>Total</span>
@@ -77,4 +89,4 @@
 
 <script src="script.js"></script>
 </body>
-</html>
+  </html>
